@@ -31,12 +31,17 @@
 (cl-defmethod aoc-load-cookie ((source string))
   "Load the cookie from filename SOURCE.
 
-If already loaded, return T."
-  (url-cookie-store "session"
-                    (aoc-retrieve-hash source)
-                    nil
-                    ".adventofcode.com"
-                    "/"))
+Note that we might want to reload a cookie in case there's
+something wrong with the existing one (corrupt/nonsense value,
+obsolete cookie.) Hence calling this function will always clobber
+the existing cookie."
+  (let ((hash (aoc-retrieve-hash source)))
+    (when hash
+      (url-cookie-store "session"
+                        hash
+                        nil
+                        ".adventofcode.com"
+                        "/"))))
 
 (aoc-load-cookie "~/tmp/scratch/adventofcode/session-cookie.txt")
 
@@ -48,62 +53,60 @@ If already loaded, return T."
   "Write a new cookie-hash to DESTINATION."
   (error "Invalid destination: %s" destination))
 
-(cl-defmethod aoc-reset-cookie-storage ((destination string))
-  "Write a new cookie-hash to filename DESTINATION."
+(cl-defmethod aoc-reset-cookie ((destination string))
+  "Write a new cookie-hash to filename DESTINATION, and load it."
   (let ((freshhash (read-string "Hash: ")))
     (with-temp-buffer
       (insert freshhash)
-      (write-file destination)
-      freshhash)))
+      (write-file destination))
+    (aoc-load-cookie destination)))
 
-(defun aoc-retrieve-input ()
-  (with-current-buffer (url-retrieve-synchronously "https://adventofcode.com/2023/day/1/input")
+(defun aoc-retrieve-input (input-source)
+  "Retrieve and return puzzle input from URL named INPUT-SOURCE.
+
+If unsuccessful, return NIL."
+  (with-current-buffer (url-retrieve-synchronously input-source)
     (goto-char (point-min))
     (re-search-forward "HTTP/1.1 \\([[:digit:]]+\\)" (line-end-position))
-    (pcase (match-string 1)
-      ("200" (re-search-forward "^$" nil t)
-             (delete-region (point-min) (point))
-             (buffer-string))
-      (_ (aoc-reset-cookie-storage "~/tmp/scratch/adventofcode/session-cookie.txt")
-         (aoc-load-cookie "~/tmp/scratch/adventofcode/session-cookie.txt")
-         ;; Now that the cookie situation is fixed, try again.
-         (aoc-retrieve-input)))))
+    (when (string= (match-string 1) "200")
+      (re-search-forward "^$" nil t)
+      (delete-region (point-min) (point))
+      (buffer-string))))
 
-(aoc-retrieve-input)
+(_ (aoc-reset-cookie "~/tmp/scratch/adventofcode/session-cookie.txt")
+   ;; Now that the cookie situation is fixed, try again.
+   (aoc-retrieve-input))
 
-(defun aoc--set-cookie ()
-  "Load a hash value from a file to use as your Advent of Code
-authentication cookie.
+(defmacro until (test &rest body)
+  "Reverse the sense of WHILE."
+  (declare (indent 1))
+  `(while (not ,test)
+     ,@body))
 
-If nonexistent, ask the user for the value, then write that value
-to the file for next time."
-  (let* ((filename (format "%s/session-cookie.txt" *top-dir*))
-         (hash (if (file-exists-p filename)
-                   (with-temp-buffer
-                     (insert-file-contents filename)
-                     (buffer-string))
-                 (let ((freshhash (read-string "Session file missing; enter hash now: ")))
-                   (with-temp-buffer
-                     (insert freshhash)
-                     (write-file filename)
-                     freshhash)))))
-    (url-cookie-store "session" hash nil ".adventofcode.com" "/")))
+(progn
+  (when (null url-cookie-storage)
+    (aoc-load-cookie "~/tmp/scratch/adventofcode/session-cookie.txt"))
 
-(defun aoc-session-init (year day)
-  "Initialize problem environment for Advent of Code puzzle
-corresponding to YEAR and DAY."
+  (cl-do ((puzzle-input (aoc-retrieve-input "https://adventofcode.com/2023/day/1/input")
+                        (aoc-retrieve-input "https://adventofcode.com/2023/day/1/input")))
+         (puzzle-input)
+    (message "hi")))
+
+;; TODO: create directory structure. write defun.
+;;
+;; Assume the top-level directory is given (either as a plain global
+;; variable, or as a customizable variable)
+(defun aoc-setup-year-and-day (year day)
+  "Setup directory for YEAR and DAY.
+
+Assuming top level directory named TOP, this function creates
+TOP/YEAR/day/DAY, creating whatever missing parent directories
+are needed per MAKE-DIRECTORY.
+
+The directory structure is meant to echo the one used by Advent
+of Code itself."
   (interactive "nYear: \nnDay: ")
-  (defvar *top-dir*)
-  (let ((*top-dir* "~/tmp/scratch/adventofcode"))
-    (unless (url-cookie-retrieve ".adventofcode.com" "/")
-      (aoc--set-cookie))
-    (let* ((date-slug (format "%d/day/%d" year day))
-           (new-directory (format "%s/%s" *top-dir* date-slug)))
-      (unless (file-exists-p new-directory)
-        (make-directory new-directory t))
-      (url-copy-file (format "https://adventofcode.com/%s/input" date-slug)
-                     (format "%s/input.txt" new-directory)
-                     t))))
+  (make-directory (format "~/tmp/scratch/adventofcode/%d/day/%d" year day)))
 
 ;; Local Variables:
 ;; read-symbol-shorthands: (("aoc-" . "advent-of-code-"))
