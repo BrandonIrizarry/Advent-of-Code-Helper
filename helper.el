@@ -93,7 +93,9 @@ is saved to disk after customization."
   (eieio-customize-object (aoch-cookie)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun aoch-main (year day)
+(defun aoch-prepare-puzzle (year day)
+  "Download puzzle input for YEAR and DAY, possibly creating the
+relevant directory."
   (interactive
    (mapcar #'string-to-number
            (list
@@ -106,31 +108,27 @@ is saved to disk after customization."
                     (aoch-load-cookie)
                   (file-missing
                    (user-error "Define a cookie first with 'advent-of-code-helper-bootstrap'.")))))
+    ;; It can't hurt to always re-store the cookie, even though one
+    ;; might already be in place.
     (url-cookie-store "session" (get-hash cookie) nil ".adventofcode.com" "/")
     (url-retrieve (format "https://adventofcode.com/%d/day/%d/input" year day)
                   (lambda (status)
                     (pcase (cl-third (plist-get status :error))
                       ((pred null)
+                       ;; Delete the HTTP response header
                        (re-search-forward "^$" nil t)
                        (delete-region (point-min) (point))
-                       (print (buffer-string)))
+                       ;; Prepare the puzzle directory before writing
+                       ;; the input file
+                       (let ((puzzle-directory (format "%s%d/day/%d" aoch-top-level-directory year day)))
+                         (make-directory puzzle-directory 'create-missing-parent-dirs)
+                         (write-file (concat puzzle-directory "/input.txt"))))
                       (404
                        (error "Puzzle hasn't been published yet"))
                       (500
                        (error "Bad cookie hash: run 'advent-of-code-helper-bootstrap'")))))))
 
-;; FIXME
-(defun aoc-setup-year-and-day (year day)
-  "Setup directory for YEAR and DAY.
-
-Assuming top level directory named TOP, this function creates
-TOP/YEAR/day/DAY, creating whatever missing parent directories
-are needed per MAKE-DIRECTORY.
-
-The directory structure is meant to echo the one used by Advent
-of Code itself."
-  (interactive "nYear: \nnDay: ")
-  (make-directory (format "~/tmp/scratch/adventofcode/%d/day/%d" year day)))
+(provide 'advent-of-code-helper)
 
 ;; Local Variables:
 ;; read-symbol-shorthands: (("aoch-" . "advent-of-code-helper-"))
