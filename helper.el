@@ -93,14 +93,19 @@ is saved to disk after customization."
   (eieio-customize-object (aoch-cookie)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun aoch--get-year-and-day-from-user ()
+  "Helper function to use in `interactive' forms that require YEAR
+and DAY as user-supplied parameters."
+  (let ((current-year (string-to-number (format-time-string "%Y"))))
+    (mapcar #'string-to-number
+            (list
+             (completing-read "Year: " (mapcar #'number-to-string (number-sequence 2015 current-year)))
+             (completing-read "Day: " (mapcar #'number-to-string (number-sequence 1 25)))))))
+
 (defun aoch-prepare-puzzle (year day)
   "Download puzzle input for YEAR and DAY, possibly creating the
 relevant directory."
-  (interactive
-   (mapcar #'string-to-number
-           (list
-            (completing-read "Year: " (mapcar #'number-to-string (number-sequence 2015 (string-to-number (format-time-string "%Y")))))
-            (completing-read "Day: " (mapcar #'number-to-string (number-sequence 1 25))))))
+  (interactive (aoch--get-year-and-day-from-user))
   ;; In case we're not running interactively.
   (when (< year 2015)
     (user-error "Advent of Code didn't exist before this time"))
