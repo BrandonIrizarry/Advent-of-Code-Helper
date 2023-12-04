@@ -147,6 +147,21 @@ Day 12 of Year 2016)."
       (user-error "Prepare puzzle first with `aoch-prepare-puzzle'"))
     (dired directory)))
 
+(defvar aoch-map (make-sparse-keymap))
+
+(define-minor-mode aoch-mode
+    "Activate certain niceties for working with Advent of Code."
+  :lighter " AOCH"
+  :global t
+  :keymap aoch-map)
+
+(easy-menu-define aoch-menu aoch-map
+  "Menu for Advent of Code Helper."
+  '("AOCH"
+    ["Bootstrap Cookie" aoch-bootstrap]
+    ["Prepare Puzzle" aoch-prepare-puzzle]
+    ["Visit Puzzle" aoch-visit-puzzle]))
+
 (provide 'advent-of-code-helper)
 
 ;; Local Variables:
