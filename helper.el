@@ -100,24 +100,22 @@ is saved to disk after customization."
                   (file-missing
                    (user-error "Define a cookie first with 'advent-of-code-helper-bootstrap'.")))))
     (url-cookie-store "session" (get-hash cookie) nil ".adventofcode.com" "/")
-    (let ((aoch-retrieve-input year day))
-      (unless result
-        (user-error "Bogus (or expired) cookie value: run 'advent-of-code-helper-bootstrap'"))
-      result)))
+    (url-retrieve (format "https://adventofcode.com/%d/day/%d/input" year day)
+                  (lambda (status)
+                    (pcase (cl-third (plist-get status :error))
+                      ((pred null)
+                       (re-search-forward "^$" nil t)
+                       (delete-region (point-min) (point))
+                       (print (buffer-string)))
+                      (404
+                       (error "Puzzle hasn't been published yet"))
+                      (500
+                       (error "Bad cookie hash: run 'advent-of-code-helper-bootstrap'")))))))
 
+(completing-read "Year: " (mapcar #'number-to-string (number-sequence 2015 (string-to-number (format-time-string "%Y")))))
+(completing-read "Day: " (mapcar #'number-to-string (number-sequence 1 25)))
 
-
-(defun aoch-retrieve-input (year day)
-  "Retrieve and return puzzle input from URL named INPUT-SOURCE.
-
-If unsuccessful, return NIL."
-  (with-current-buffer (url-retrieve-synchronously (format "https://adventofcode.com/%d/day/%d/input" year day))
-    (goto-char (point-min))
-    (re-search-forward "HTTP/1.1 \\([[:digit:]]+\\)" (line-end-position))
-    (when (string= (match-string 1) "200")
-      (re-search-forward "^$" nil t)
-      (delete-region (point-min) (point))
-      (buffer-string))))
+(aoch-main 2023 5)
 
 ;; FIXME
 (defun aoc-setup-year-and-day (year day)
