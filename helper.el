@@ -94,7 +94,14 @@ is saved to disk after customization."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun aoch-main (year day)
-  (interactive "nYear: \nnDay: ")
+  (interactive
+   (mapcar #'string-to-number
+           (list
+            (completing-read "Year: " (mapcar #'number-to-string (number-sequence 2015 (string-to-number (format-time-string "%Y")))))
+            (completing-read "Day: " (mapcar #'number-to-string (number-sequence 1 25))))))
+  ;; In case we're not running interactively.
+  (when (< year 2015)
+    (user-error "Advent of Code didn't exist before this time"))
   (let ((cookie (condition-case nil
                     (aoch-load-cookie)
                   (file-missing
@@ -111,11 +118,6 @@ is saved to disk after customization."
                        (error "Puzzle hasn't been published yet"))
                       (500
                        (error "Bad cookie hash: run 'advent-of-code-helper-bootstrap'")))))))
-
-(completing-read "Year: " (mapcar #'number-to-string (number-sequence 2015 (string-to-number (format-time-string "%Y")))))
-(completing-read "Day: " (mapcar #'number-to-string (number-sequence 1 25)))
-
-(aoch-main 2023 5)
 
 ;; FIXME
 (defun aoc-setup-year-and-day (year day)
