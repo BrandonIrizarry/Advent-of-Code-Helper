@@ -138,6 +138,15 @@ relevant directory."
                       (500
                        (error "Bad cookie hash: run 'aoch-bootstrap'")))))))
 
+(defun aoch-visit-puzzle (year day)
+  "Visit directory associated with a given YEAR and DAY (e.g.,
+Day 12 of Year 2016)."
+  (interactive (aoch--get-year-and-day-from-user))
+  (let ((directory (aoch--get-puzzle-directory year day)))
+    (unless (file-exists-p directory)
+      (user-error "Prepare puzzle first with `aoch-prepare-puzzle'"))
+    (dired directory)))
+
 (provide 'advent-of-code-helper)
 
 ;; Local Variables:
