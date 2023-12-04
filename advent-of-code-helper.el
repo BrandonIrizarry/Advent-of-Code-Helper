@@ -159,7 +159,7 @@ The user is free to provide their own bindings for
   :global t
   :keymap aoch-map)
 
-(easy-menu-define aoch-menu aoch-map
+(easy-menu-define nil aoch-map
   "Menu for Advent of Code Helper."
   '("AOCH"
     ["Bootstrap Cookie" aoch-bootstrap]
