@@ -112,7 +112,7 @@ relevant directory."
   (let ((cookie (condition-case nil
                     (aoch-load-cookie)
                   (file-missing
-                   (user-error "Define a cookie first with 'advent-of-code-helper-bootstrap'.")))))
+                   (user-error "Define a cookie first with 'aoch-bootstrap'.")))))
     ;; It can't hurt to always re-store the cookie, even though one
     ;; might already be in place.
     (url-cookie-store "session" (get-hash cookie) nil ".adventofcode.com" "/")
@@ -131,7 +131,7 @@ relevant directory."
                       (404
                        (error "Puzzle hasn't been published yet"))
                       (500
-                       (error "Bad cookie hash: run 'advent-of-code-helper-bootstrap'")))))))
+                       (error "Bad cookie hash: run 'aoch-bootstrap'")))))))
 
 (provide 'advent-of-code-helper)
 
