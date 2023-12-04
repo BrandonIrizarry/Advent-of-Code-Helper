@@ -150,7 +150,11 @@ Day 12 of Year 2016)."
 (defvar aoch-map (make-sparse-keymap))
 
 (define-minor-mode aoch-mode
-    "Activate certain niceties for working with Advent of Code."
+    "Activate certain niceties for working with Advent of Code.
+
+The user is free to provide their own bindings for
+`aoch-bootstrap', `aoch-prepare-puzzle', and
+`aoch-visit-puzzle'. A GUI menu is also provided."
   :lighter " AOCH"
   :global t
   :keymap aoch-map)
