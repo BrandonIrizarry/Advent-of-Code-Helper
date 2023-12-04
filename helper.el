@@ -1,5 +1,8 @@
 ;; -*- lexical-binding: t -*-
 
+;;; Customization and defvars.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defgroup advent-of-code-helper nil
   "A library for organizing Advent of Code solutions.
 
@@ -24,48 +27,87 @@ This file is stored directly under your top-level directory."
   :tag "Advent of Code Helper Cookie Hash Filename"
   :group 'advent-of-code-helper)
 
+(define-inline aoch-get-cookie-fullpath ()
+  "Get the full path to the cookie, based on the current values of
+`aoch-top-level-directory' and `aoch-cookie-name'."
+  (concat aoch-top-level-directory
+          aoch-cookie-name))
+
+;;; EIEIO definitions.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (require 'eieio-custom)
 (require 'eieio-base)
 
-(defclass aoch-cookie (eieio-named eieio-persistent)
+(defclass aoch-cookie (eieio-persistent eieio-singleton eieio-named)
   ((hash :initarg :hash
          :initform ""
+         :reader get-hash
          :custom string
          :label "Cookie hash"
          :documentation
          "The hash used to validate HTTP requests made to the Advent of
 Code website.")))
 
+(cl-defmethod initialize-instance :after ((cookie aoch-cookie) &rest _)
+  "Initialize fields inherited from EIEIO-PERSISTENT to their proper
+values."
+  (let ((fullpath (aoch-get-cookie-fullpath)))
+    (unless (file-exists-p fullpath)
+      (make-empty-file fullpath))
+    (oset cookie file fullpath)
+    (oset cookie file-header-line ";; -*- mode: lisp-data -*-")
+    (oset cookie do-backups nil)
+    (oset cookie object-name "Advent of Code Session Cookie")))
+
+;; This function is a pared-down version of `eieio-persistent-save'.
+(defun aoch-save-cookie (cookie)
+  "Save a cookie to disk, using the :file field of COOKIE.
+
+The comment header is a file-local-variable property line
+specifying the major mode as `lisp-data-mode'."
+  (with-temp-buffer
+    (let ((standard-output (current-buffer))
+          (eieio-print-object-name nil))
+      (object-write cookie)
+      (let ((backup-inhibited (not (oref cookie do-backups)))
+            (coding-system-for-write 'utf-8-emacs))
+        (write-region (point-min) (point-max) (oref cookie file))))))
+
 (cl-defmethod eieio-done-customizing ((cookie aoch-cookie))
   "Override this hook to ensure that the cookie is saved to disk
 after customization."
-  (eieio-persistent-save cookie))
+  (aoch-save-cookie cookie))
 
-(setq foo (aoch-cookie :object-name "Advent of Code Helper Cookie"
-                       :file (let ((name (concat aoch-top-level-directory aoch-cookie-name)))
-                               (unless (file-exists-p name)
-                                 (make-empty-file name))
-                               name)))
+(defun aoch-load-cookie ()
+  "Load a cookie from `aoch-cookie-fullpath'."
+  (eieio-persistent-read (aoch-get-cookie-fullpath) aoch-cookie))
 
-(eieio-customize-object foo)
+(defun aoch-bootstrap ()
+  "Bootstrap cookie by defining it via an EIEIO customization
+buffer.
 
-;; This seems to be the key for using the default implementation.
-(cl-defmethod aoch-load-cookie ((cookie aoch-cookie))
-  (let ((default-directory (file-name-directory (oref cookie file))))
-    (eieio-persistent-read (eieio-persistent-path-relative foo aoch-cookie-name)
-                           aoch-cookie)))
+`eieio-done-customizing' is overriden to ensure that the new cookie
+is saved to disk after customization."
+  (interactive)
+  (eieio-customize-object (aoch-cookie)))
 
-(aoch-load-cookie foo)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun aoch-main (year day)
+  (interactive "nYear: \nnDay: ")
+  (let ((cookie (condition-case nil
+                    (aoch-load-cookie)
+                  (file-missing
+                   (user-error "Define a cookie first with 'advent-of-code-helper-bootstrap'.")))))
+    (url-cookie-store "session" (get-hash cookie) nil ".adventofcode.com" "/")
+    (let ((aoch-retrieve-input year day))
+      (unless result
+        (user-error "Bogus (or expired) cookie value: run 'advent-of-code-helper-bootstrap'"))
+      result)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(unless (url-cookie-retrieve ".adventofcode.com" "/")
-  (user-error "Run advent-of-code-session-bootstrap"))
-
-(aoc-session-load)
 
 
-(cl-defun aoc-retrieve-input (&key year day)
+(defun aoch-retrieve-input (year day)
   "Retrieve and return puzzle input from URL named INPUT-SOURCE.
 
 If unsuccessful, return NIL."
@@ -77,121 +119,7 @@ If unsuccessful, return NIL."
       (delete-region (point-min) (point))
       (buffer-string))))
 
-;; Make a cookie
-;; Customize it
-;; Save it
-(defun aoc-session-bootstrap ()
-  "Bootstrap the AOC cookie."
-  (interactive)
-  (let ((cookie (aoc-session-cookie :object-name "Advent of Code Session Cookie"
-                                    :file aoc-session-cookie-file)))
-    (eieio-customize-object cookie)
-))
-
-(defun aoc-session-load ()
-  "Load an existing cookie.
-
-If the cookie is missing, return NIL."
-  (let ((cookie-file (concat aoc-top-level-directory
-                             aoc-session-cookie-file)))
-    (when (file-exists-p cookie-file)
-      (let ((cookie (eieio-persistent-read
-                     aoc-session-cookie)))
-        cookie))))
-
-(aoc-session-load)
-
-(aoc-retrieve-input :year 2023 :day 1)
-
-
-
-
-;;; Commentary
-;;;
-;;; This is meant to use a session from a logged-in Advent of Code
-;;; session. However, the file being loaded currently uses an old
-;;; cookie, and I'm still able to download input!
-;;;
-;;; Apparently, this lets me use my old cookies to log in, which is
-;;; interesting. If I corrupt the old hash I'm using by one digit -
-;;; thus using a hash never assigned to me - it breaks.
-(cl-defgeneric aoc-retrieve-hash (source)
-  "Retrieve a cookie-hash value from a generic SOURCE."
-  (error "Invalid source: %s" source))
-
-(cl-defmethod aoc-retrieve-hash ((source string))
-  "Retrieve a cookie-hash from filename SOURCE."
-  (when (file-exists-p source)
-    (with-temp-buffer
-      (insert-file-contents source)
-      (buffer-string))))
-
-;; Getting
-;;
-;; If there is no cookie associated with Advent of Code, we can't
-;; access input data, so let's try to read it from a file.
-(cl-defgeneric aoc-load-cookie (source)
-  "Load the cookie from a generic SOURCE if isn't loaded yet."
-  (error "Invalid source: %s" source))
-
-(cl-defmethod aoc-load-cookie ((source string))
-  "Load the cookie from filename SOURCE.
-
-Note that we might want to reload a cookie in case there's
-something wrong with the existing one (corrupt/nonsense value,
-obsolete cookie.) Hence calling this function will always clobber
-the existing cookie."
-  (let ((hash (aoc-retrieve-hash source)))
-    (when hash
-      (url-cookie-store "session"
-                        hash
-                        nil
-                        ".adventofcode.com"
-                        "/"))))
-
-(aoc-load-cookie "~/tmp/scratch/adventofcode/session-cookie.txt")
-
-;; Setting
-;;
-;; Save the new hash, and make it available in the context of the
-;; current program by returning it.
-(cl-defgeneric aoc-reset-cookie-storage (destination)
-  "Write a new cookie-hash to DESTINATION."
-  (error "Invalid destination: %s" destination))
-
-(cl-defmethod aoc-reset-cookie ((destination string))
-  "Write a new cookie-hash to filename DESTINATION, and load it."
-  (let ((freshhash (read-string "Hash: ")))
-    (with-temp-buffer
-      (insert freshhash)
-      (write-file destination))
-    (aoc-load-cookie destination)))
-
-(defun aoc-retrieve-input (input-source)
-  "Retrieve and return puzzle input from URL named INPUT-SOURCE.
-
-If unsuccessful, return NIL."
-  (with-current-buffer (url-retrieve-synchronously input-source)
-    (goto-char (point-min))
-    (re-search-forward "HTTP/1.1 \\([[:digit:]]+\\)" (line-end-position))
-    (when (string= (match-string 1) "200")
-      (re-search-forward "^$" nil t)
-      (delete-region (point-min) (point))
-      (buffer-string))))
-
-(progn
-  (when (null url-cookie-storage)
-    (aoc-load-cookie "~/tmp/scratch/adventofcode/session-cookie.txt"))
-
-  (cl-do ((puzzle-input (aoc-retrieve-input "https://adventofcode.com/2023/day/1/input")
-                        (aoc-retrieve-input "https://adventofcode.com/2023/day/1/input")))
-         (puzzle-input)
-    (message "hi")))
-
-;; TODO: create directory structure. write defun.
-;;
-;; Assume the top-level directory is given (either as a plain global
-;; variable, or as a customizable variable)
+;; FIXME
 (defun aoc-setup-year-and-day (year day)
   "Setup directory for YEAR and DAY.
 
