@@ -102,6 +102,11 @@ and DAY as user-supplied parameters."
              (completing-read "Year: " (mapcar #'number-to-string (number-sequence 2015 current-year)))
              (completing-read "Day: " (mapcar #'number-to-string (number-sequence 1 25)))))))
 
+(define-inline aoch--get-puzzle-directory (year day)
+  "Return the string denoting the puzzle directory for a given YEAR
+and DAY."
+  (inline-quote (format "%s%d/day/%d" aoch-top-level-directory ,year ,day)))
+
 (defun aoch-prepare-puzzle (year day)
   "Download puzzle input for YEAR and DAY, possibly creating the
 relevant directory."
@@ -125,7 +130,7 @@ relevant directory."
                        (delete-region (point-min) (point))
                        ;; Prepare the puzzle directory before writing
                        ;; the input file
-                       (let ((puzzle-directory (format "%s%d/day/%d" aoch-top-level-directory year day)))
+                       (let ((puzzle-directory (aoch--get-puzzle-directory year day)))
                          (make-directory puzzle-directory 'create-missing-parent-dirs)
                          (write-file (concat puzzle-directory "/input.txt"))))
                       (404
