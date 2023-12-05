@@ -146,6 +146,7 @@ is saved to disk after customization."
   (interactive)
   (eieio-customize-object (aoch-cookie)))
 
+;;; Main application.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun aoch--get-year-and-day-from-user ()
   "Helper function to use in `interactive' forms that require YEAR
@@ -201,6 +202,8 @@ Day 12 of Year 2016)."
       (user-error "Prepare puzzle first with `aoch-prepare-puzzle'"))
     (dired directory)))
 
+;;; Minor mode and menu.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar aoch-map (make-sparse-keymap))
 
 (define-minor-mode aoch-mode
