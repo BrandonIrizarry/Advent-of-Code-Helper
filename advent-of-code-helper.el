@@ -161,10 +161,11 @@ and DAY as user-supplied parameters."
 and DAY."
   (inline-quote (format "%s%d/day/%d" aoch-top-level-directory ,year ,day)))
 
-(defun aoch-prepare-puzzle (year day)
+(defun aoch-prepare-puzzle (year day &optional download-demo-input-p)
   "Download puzzle input for YEAR and DAY, possibly creating the
 relevant directory."
-  (interactive (aoch--get-year-and-day-from-user))
+  (interactive (append (aoch--get-year-and-day-from-user)
+                       (list (y-or-n-p "Also download demo input?"))))
   ;; In case we're not running interactively.
   (when (< year 2015)
     (user-error "Advent of Code didn't exist before this time"))
@@ -190,7 +191,16 @@ relevant directory."
                       (404
                        (error "Puzzle hasn't been published yet"))
                       (500
-                       (error "Bad cookie hash: run 'aoch-bootstrap'")))))))
+                       (error "Bad cookie hash: run 'aoch-bootstrap'")))))
+    (when download-demo-input-p
+      (url-retrieve (format "https://adventofcode.com/%d/day/%d" year day)
+                    (lambda (status)
+                      (re-search-forward (rx "<pre><code>" (group (+ anything)) "</code></pre>") nil t)
+                      (let ((demo (match-string-no-properties 1))
+                            (puzzle-directory (aoch--get-puzzle-directory year day)))
+                        (with-temp-buffer
+                          (insert demo)
+                          (write-file (concat puzzle-directory "/demo-input.txt") demo))))))))
 
 (defun aoch-visit-puzzle (year day)
   "Visit directory associated with a given YEAR and DAY (e.g.,
