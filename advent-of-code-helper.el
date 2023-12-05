@@ -162,6 +162,20 @@ and DAY as user-supplied parameters."
 and DAY."
   (inline-quote (format "%s%d/day/%d" aoch-top-level-directory ,year ,day)))
 
+;; This is more useful for debugging, when I've recently started Emacs
+;; and want to mess around with `url-retrieve' and similar, but don't
+;; have the cookie actually loaded yet.
+(defun aoch--load-and-store-cookie ()
+  "Helper function to load the cookie object from disk, and then
+load the actual hash into Emacs with `url-cookie-store'."
+  (let ((cookie (condition-case nil
+                    (aoch-load-cookie)
+                  (file-missing
+                   (user-error "Define a cookie first with 'aoch-bootstrap' (or select 'Bootstrap Cookie' from the main menu.)")))))
+    ;; It can't hurt to always re-store the cookie, even though one
+    ;; might already be in place.
+    (url-cookie-store "session" (get-hash cookie) nil ".adventofcode.com" "/")))
+
 (defun aoch-prepare-puzzle (year day)
   "Download puzzle input for YEAR and DAY, possibly creating the
 relevant directory."
@@ -169,29 +183,23 @@ relevant directory."
   ;; In case we're not running interactively.
   (when (< year 2015)
     (user-error "Advent of Code didn't exist before this time"))
-  (let ((cookie (condition-case nil
-                    (aoch-load-cookie)
-                  (file-missing
-                   (user-error "Define a cookie first with 'aoch-bootstrap' (or select 'Bootstrap Cookie' from the main menu.)")))))
-    ;; It can't hurt to always re-store the cookie, even though one
-    ;; might already be in place.
-    (url-cookie-store "session" (get-hash cookie) nil ".adventofcode.com" "/")
-    (url-retrieve (format "https://adventofcode.com/%d/day/%d/input" year day)
-                  (lambda (status)
-                    (pcase (cl-third (plist-get status :error))
-                      ((pred null)
-                       ;; Delete the HTTP response header
-                       (re-search-forward "^$" nil t)
-                       (delete-region (point-min) (point))
-                       ;; Prepare the puzzle directory before writing
-                       ;; the input file
-                       (let ((puzzle-directory (aoch--get-puzzle-directory year day)))
-                         (make-directory puzzle-directory 'create-missing-parent-dirs)
-                         (write-file (concat puzzle-directory "/input.txt"))))
-                      (404
-                       (error "Puzzle hasn't been published yet"))
-                      (500
-                       (error "Bad cookie hash: run 'aoch-bootstrap' (or select 'Bootstrap Cookie' from the main menu.)")))))))
+  (aoch--load-and-store-cookie)
+  (url-retrieve (format "https://adventofcode.com/%d/day/%d/input" year day)
+                (lambda (status)
+                  (pcase (cl-third (plist-get status :error))
+                    ((pred null)
+                     ;; Delete the HTTP response header
+                     (re-search-forward "^$" nil t)
+                     (delete-region (point-min) (point))
+                     ;; Prepare the puzzle directory before writing
+                     ;; the input file
+                     (let ((puzzle-directory (aoch--get-puzzle-directory year day)))
+                       (make-directory puzzle-directory 'create-missing-parent-dirs)
+                       (write-file (concat puzzle-directory "/input.txt"))))
+                    (404
+                     (error "Puzzle hasn't been published yet"))
+                    (500
+                     (error "Bad cookie hash: run 'aoch-bootstrap' (or select 'Bootstrap Cookie' from the main menu.)"))))))
 
 (defun aoch-visit-puzzle (year day)
   "Visit directory associated with a given YEAR and DAY (e.g.,
