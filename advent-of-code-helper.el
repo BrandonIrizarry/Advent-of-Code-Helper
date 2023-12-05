@@ -178,12 +178,25 @@ load the actual hash into Emacs with `url-cookie-store'."
 
 (defun aoch-prepare-puzzle (year day)
   "Download puzzle input for YEAR and DAY, possibly creating the
-relevant directory."
+relevant directory.
+
+The real work is done by `aoch--prepare-puzzle', which see."
   (interactive (aoch--get-year-and-day-from-user))
-  ;; In case we're not running interactively.
+  (aoch--prepare-puzzle year day))
+
+;; The cookie can't be made visible outside the callback. This is a
+;; problem when invoking the puzzle-preparation code for the first
+;; time after starting Emacs, when no cookies are loaded yet. The
+;; code effectively has to be run once to hit a wall (a HTTP 400
+;; error), upon which the cookie can then be set, upon which the
+;; code can be successfully run again.
+(defun aoch--prepare-puzzle (year day &optional try-again-p)
+  "TRY-AGAIN-P marks that the function is inside a recursive call,
+so that, in case an unfixable HTTP 400 is reached, it doesn't
+fall into an infinite recursion."
+  ;; In case the public interface wasn't run interactively.
   (when (< year 2015)
     (user-error "Advent of Code didn't exist before this time"))
-  (aoch--load-and-store-cookie)
   (url-retrieve (format "https://adventofcode.com/%d/day/%d/input" year day)
                 (lambda (status)
                   (pcase (cl-third (plist-get status :error))
@@ -196,6 +209,14 @@ relevant directory."
                      (let ((puzzle-directory (aoch--get-puzzle-directory year day)))
                        (make-directory puzzle-directory 'create-missing-parent-dirs)
                        (write-file (concat puzzle-directory "/input.txt"))))
+                    (400
+                     (if try-again-p
+                         (error "Bad request (sorry, I don't know what to do here)")
+                       ;; The cookie isn't being seen, but we can't
+                       ;; load and store it before this callback
+                       ;; either, so do it now, and try again.
+                       (aoch--load-and-store-cookie)
+                       (aoch--prepare-puzzle year day 'try-again)))
                     (404
                      (error "Puzzle hasn't been published yet"))
                     (500
