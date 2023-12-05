@@ -46,8 +46,7 @@ This file is stored directly under your top-level directory."
          :custom string
          :label "Cookie hash"
          :documentation
-         "The hash used to validate HTTP requests made to the Advent of
-Code website.")))
+         "Used to validate Advent of Code HTTP requests.")))
 
 (cl-defmethod initialize-instance :after ((cookie aoch-cookie) &rest _)
   "Initialize fields inherited from EIEIO-PERSISTENT to their proper
