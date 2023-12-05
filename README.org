@@ -14,7 +14,3 @@ of Code website more programmatic. This library is inspired by
   This especially might involve making a new EIEIO object modelling a
   problem's part 1 and part 2 answers. The done-customization "hook"
   would then use the applicable field in the submission.
-
-- Handling the Part 2 Demo Example
-
-  This is clearly missing from the current application code. 😞
