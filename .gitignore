@@ -1,3 +1,4 @@
 /.emacs-backups/
 /*.org
 !README.org
+/cookie.el
