@@ -248,9 +248,9 @@ The user is free to provide their own bindings for
 (easy-menu-define nil aoch-map
   "Menu for Advent of Code Helper."
   '("Advent-of-Code"
-    ["Bootstrap Cookie" aoch-bootstrap]
-    ["Prepare Puzzle" aoch-prepare-puzzle]
-    ["Visit Puzzle" aoch-visit-puzzle]))
+    ["Bootstrap Cookie" aoch-bootstrap :help "Fix a broken cookie"]
+    ["Prepare Puzzle" aoch-prepare-puzzle :help "Create directory and download puzzle input"]
+    ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]))
 
 (provide 'advent-of-code-helper)
 
