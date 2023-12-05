@@ -1,4 +1,59 @@
-;; -*- lexical-binding: t -*-
+;;; advent-of-code-helper.el --- Emacs Interface for Advent of Code               -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2023  Brandon C. Irizarry
+
+;; Author: Brandon C. Irizarry <brandon.irizarry@gmail.com>
+;; Keywords: advent-of-code, game, games, holidays
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; To install, put this file somewhere in your path and require this
+;; file.
+;;
+;; Advent of Code is an Advent calendar of small programming puzzles
+;; for a variety of skill sets and skill levels that can be solved in
+;; any programming language you like. People use them as interview
+;; prep, company training, university coursework, practice problems, a
+;; speed contest, or to challenge each other.
+;;
+;; See 'https://adventofcode.com/2023/about'.
+;;
+;; In order to play Advent of Code, you need to set up an account with
+;; it and log in. You then solve the available puzzles for a given
+;; year. In order to do so, you first need to download that puzzle's
+;; input, which is what you'll work with to solve the puzzle.
+;;
+;; Normally, you would download this input manually, specifying where
+;; it should be downloaded onto disk. However, it's possible to
+;; programmatically pull it down to some ideal location, using the hash
+;; associated with your login cookie, which you find in your browser's
+;; Developer Tools panel somewhere.
+;;
+;; This library provides a few utilities for facilitating these
+;; concerns: one for setting the cookie's hash, a process we call
+;; "bootstrapping"; one for then downloading the puzzle input into a
+;; particular directory, which is created automatically if missing;
+;; and one for visiting a particular puzzle directory, obviating the
+;; need to remember where you have your Advent of Code work stored.
+;;
+;; We also define a minor mode, which uses a keymap that in turn lets
+;; us define a simple menu enabling these tasks. It's of course
+;; possible to add bindings to the keymap directly; we avoid doing
+;; this out of the box to stay as much out of the user's way as
+;; possible.
 
 ;;; Customization and defvars.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
