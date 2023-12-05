@@ -163,7 +163,10 @@ and DAY."
 
 (defun aoch-prepare-puzzle (year day &optional download-demo-input-p)
   "Download puzzle input for YEAR and DAY, possibly creating the
-relevant directory."
+relevant directory.
+
+When DOWNLOAD-DEMO-INPUT-P is set, use a simple heuristic to
+download the demo test input on the puzzle's main page."
   (interactive (append (aoch--get-year-and-day-from-user)
                        (list (y-or-n-p "Also download demo input?"))))
   ;; In case we're not running interactively.
