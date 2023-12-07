@@ -115,23 +115,25 @@ values."
     (oset cookie object-name "Advent of Code Session Cookie")))
 
 ;; This function is a pared-down version of `eieio-persistent-save'.
-(defun aoch-save-cookie (cookie)
-  "Save a cookie to disk, using the :file field of COOKIE.
+;; It's meant to work with both the login cookie and submission
+;; objects.
+(cl-defmethod aoch-save ((obj eieio-persistent))
+  "Save a persistent object OBJ to disk, using its :file field.
 
 The comment header is a file-local-variable property line
 specifying the major mode as `lisp-data-mode'."
   (with-temp-buffer
     (let ((standard-output (current-buffer))
           (eieio-print-object-name nil))
-      (object-write cookie)
-      (let ((backup-inhibited (not (oref cookie do-backups)))
+      (object-write obj)
+      (let ((backup-inhibited (not (oref obj do-backups)))
             (coding-system-for-write 'utf-8-emacs))
-        (write-region (point-min) (point-max) (oref cookie file))))))
+        (write-region (point-min) (point-max) (oref obj file))))))
 
 (cl-defmethod eieio-done-customizing ((cookie aoch-cookie))
   "Override this hook to ensure that the cookie is saved to disk
 after customization."
-  (aoch-save-cookie cookie))
+  (aoch-save cookie))
 
 (defun aoch-load-cookie ()
   "Load a cookie from `aoch-cookie-fullpath'."
