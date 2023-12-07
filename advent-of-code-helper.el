@@ -73,7 +73,7 @@ solutions."
   :tag "Advent of Code Helper Top Level Directory"
   :group 'advent-of-code-helper)
 
-(defcustom aoch-cookie-name "cookie.el"
+(defcustom aoch-cookie-name "cookie.eieio"
   "The name of the file containing your Advent of Code cookie hash.
 
 This file is stored directly under your top-level directory."
