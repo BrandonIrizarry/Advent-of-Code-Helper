@@ -233,6 +233,55 @@ Day 12 of Year 2016)."
       (user-error "Prepare puzzle first with `aoch-prepare-puzzle'"))
     (dired directory)))
 
+;;; Puzzle submission.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defclass aoch-solution (eieio-named eieio-persistent)
+  ((level :initarg :level)
+   (year :initarg :year)
+   (day :initarg :day)
+   (post-url :initform ""
+             :documentation "The HTTP POST URL used to submit a solution.")
+   (post-data :initform ""
+              :documentation "The data used for the HTTP POST request.")))
+
+(cl-defmethod initialize-instance :after ((solution aoch-solution) &rest slots)
+  (with-slots (year day level) solution
+    (oset solution file (concat (aoch--get-puzzle-directory year day)
+                                (format "/part%d.eieio" level)))
+    (oset solution file-header-line ";; -*- mode: lisp-data -*-")
+    (oset solution do-backups nil)
+    (oset solution object-name (format "Part %d Solution" level))))
+
+;; These subclasses are needed for using :label and :documentation
+;; fields that look nice in customization buffers.
+(defclass aoch-solution-part-1 (aoch-solution)
+  ((value :initarg :value
+          :initform ""
+          :custom string
+          :label "Part 1"
+          :documentation
+          "Your Part 1 Solution.")))
+
+(defclass aoch-solution-part-2 (aoch-solution)
+  ((value :initarg :value
+          :initform ""
+          :custom string
+          :label "Part 2"
+          :documentation
+          "Your Part 2 Solution.")))
+
+(cl-defmethod eieio-done-customizing ((solution aoch-solution))
+  (aoch-save solution))
+
+(defun aoch-submit-part (level)
+  (interactive "nPart: ")
+  (string-match "\\([[:digit:]]+\\)/day/\\([[:digit:]][[:digit:]]?\\)" default-directory)
+  (let ((year (string-to-number (match-string-no-properties 1 default-directory)))
+        (day (string-to-number (match-string-no-properties 2 default-directory)))
+        (part-method (intern (format "advent-of-code-helper-solution-part-%d" level))))
+    (eieio-customize-object (funcall part-method :year year :day day :level level))))
+
 ;;; Minor mode and menu.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar aoch-map (make-sparse-keymap))
