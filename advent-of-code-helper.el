@@ -298,8 +298,13 @@ The user is free to provide their own bindings for
 
 (defun aoch--inside-puzzle-directory-p ()
   "Determine whether the user is visiting a puzzle directory, such
-that the appropriate menu entries will become visible."
-  (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory))
+that the appropriate menu entries will become visible.
+
+Return the puzzle's year and day, found in the puzzle directory
+name."
+  (when (string-match "\\([[:digit:]]+\\)/day/\\([[:digit:]][[:digit:]]?\\)" default-directory)
+    (list (string-to-number (match-string-no-properties 1 default-directory))
+          (string-to-number (match-string-no-properties 2 default-directory)))))
 
 (defun aoch--do-nothing ()
   "Stub for non-functional menu entries."
