@@ -240,7 +240,7 @@ Day 12 of Year 2016)."
   ((level :initarg :level)
    (year :initarg :year)
    (day :initarg :day)
-   (submitp :initform nil
+   (submitp :initform t
             :custom boolean
             :label "Submit this answer?"
             :documentation "Set to 'on' to submit your answer to Advent of Code.
