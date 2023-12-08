@@ -282,6 +282,31 @@ Day 12 of Year 2016)."
         (part-method (intern (format "advent-of-code-helper-solution-part-%d" level))))
     (eieio-customize-object (funcall part-method :year year :day day :level level))))
 
+(defun aoch--record-part (level)
+  (seq-let (year day) (aoch--inside-puzzle-directory-p)
+    (let ((solution
+           (condition-case nil
+               (cl-ecase level
+                 (1 (aoch-solution-part-1 :year year :day day :level level))
+                 (2 (aoch-solution-part-2 :year year :day day :level level)))
+             (error
+              (user-error "Invalid level! Try 1 or 2")))))
+      (eieio-customize-object solution))))
+
+(defun aoch-record-part-1 ()
+  "Record Part 1 solution.
+
+This should be selected from the Menu Bar."
+  (interactive)
+  (aoch--record-part 1))
+
+(defun aoch-record-part-2 ()
+  "Record Part 2 solution.
+
+This should be selected from the Menu Bar."
+  (interactive)
+  (aoch--record-part 2))
+
 ;;; Minor mode and menu.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar aoch-map (make-sparse-keymap))
@@ -319,10 +344,10 @@ name."
     ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]
     ;; Submenus for Part submission.
     ("Part 1" :visible (aoch--inside-puzzle-directory-p)
-     ["Record" aoch--do-nothing :help "Record your Part 1 answer"]
+     ["Record" aoch-record-part-1 :help "Record your Part 1 answer"]
      ["Record and Submit" aoch--do-nothing :help "Record and submit your Part 1 answer"])
     ("Part 2" :visible (aoch--inside-puzzle-directory-p)
-     ["Record" aoch--do-nothing :help "Record your Part 2 answer"]
+     ["Record" aoch-record-part-2 :help "Record your Part 2 answer"]
      ["Record and Submit" aoch--do-nothing :help "Record and submit your Part 2 answer"])))
 
 (provide 'advent-of-code-helper)
