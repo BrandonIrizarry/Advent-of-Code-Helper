@@ -296,13 +296,22 @@ The user is free to provide their own bindings for
   :global t
   :keymap aoch-map)
 
+;; TODO: write aoch--inside-puzzle-directory-p
+
+(defun aoch--do-nothing ()
+  "Stub for non-functional menu entries."
+  (interactive)
+  (identity t))
+
 (easy-menu-define nil aoch-map
   "Menu for Advent of Code Helper."
   '("Advent-of-Code"
     ["Bootstrap Cookie" aoch-bootstrap :help "Fix a broken cookie"]
     ["Prepare Puzzle" aoch-prepare-puzzle :help "Create directory and download puzzle input"]
     ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]
-    ["Submit Part 1" aoch-submit-part :visible (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory)]))
+    ("Part 1" :visible (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory)
+     ["Record" aoch--do-nothing]
+     ["Record and Submit" aoch--do-nothing])))
 
 (provide 'advent-of-code-helper)
 
