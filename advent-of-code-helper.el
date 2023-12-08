@@ -274,15 +274,16 @@ Day 12 of Year 2016)."
 (cl-defmethod eieio-done-customizing ((solution aoch-solution))
   (aoch-save solution))
 
-(defun aoch--record-part (level)
-  (seq-let (year day) (aoch--inside-puzzle-directory-p)
+(defun aoch--record-part (level &optional year day)
+  ;; Fetch YEAR and DAY from `default-directory' if we're recording
+  ;; only, that is, not in the context of recording and submitting.
+  (seq-let (year day) (if (and year day)
+                          (list year day)
+                        (aoch--inside-puzzle-directory-p))
     (let ((solution
-           (condition-case nil
-               (cl-ecase level
-                 (1 (aoch-solution-part-1 :year year :day day :level level))
-                 (2 (aoch-solution-part-2 :year year :day day :level level)))
-             (error
-              (user-error "Invalid level! Try 1 or 2")))))
+           (cl-ecase level
+             (1 (aoch-solution-part-1 :year year :day day :level level))
+             (2 (aoch-solution-part-2 :year year :day day :level level)))))
       (eieio-customize-object solution))))
 
 (defun aoch-record-part-1 ()
