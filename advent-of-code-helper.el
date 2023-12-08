@@ -372,12 +372,10 @@ name."
     ["Prepare Puzzle" aoch-prepare-puzzle :help "Create directory and download puzzle input"]
     ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]
     ;; Submenus for Part submission.
-    ("Part 1" :visible (aoch--inside-puzzle-directory-p)
-     ["Record" aoch-record-part-1 :help "Record your Part 1 answer"]
-     ["Record and Submit" aoch-record-and-submit-part-1 :help "Record and submit your Part 1 answer"])
-    ("Part 2" :visible (aoch--inside-puzzle-directory-p)
-     ["Record" aoch-record-part-2 :help "Record your Part 2 answer"]
-     ["Record and Submit" aoch-record-and-submit-part-2 :help "Record and submit your Part 2 answer"])))
+    ("Part 1 Actions" :visible (aoch--inside-puzzle-directory-p)
+     ["Record/Submit" aoch-record-and-submit-part-1 :help "Record and submit your Part 1 answer"])
+    ("Part 2 Actions" :visible (aoch--inside-puzzle-directory-p)
+     ["Record/Submit" aoch-record-and-submit-part-2 :help "Record and submit your Part 2 answer"])))
 
 (provide 'advent-of-code-helper)
 
