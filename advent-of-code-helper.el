@@ -314,11 +314,11 @@ that the appropriate menu entries will become visible."
     ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]
     ;; Submenus for Part submission.
     ("Part 1" :visible (aoch--inside-puzzle-directory-p)
-     ["Record" aoch--do-nothing]
-     ["Record and Submit" aoch--do-nothing])
+     ["Record" aoch--do-nothing :help "Record your Part 1 answer"]
+     ["Record and Submit" aoch--do-nothing :help "Record and submit your Part 1 answer"])
     ("Part 2" :visible (aoch--inside-puzzle-directory-p)
-     ["Record" aoch--do-nothing]
-     ["Record and Submit" aoch--do-nothing])))
+     ["Record" aoch--do-nothing :help "Record your Part 2 answer"]
+     ["Record and Submit" aoch--do-nothing :help "Record and submit your Part 2 answer"])))
 
 (provide 'advent-of-code-helper)
 
