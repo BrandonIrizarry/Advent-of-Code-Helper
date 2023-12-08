@@ -311,6 +311,9 @@ The user is free to provide their own bindings for
     ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]
     ("Part 1" :visible (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory)
      ["Record" aoch--do-nothing]
+     ["Record and Submit" aoch--do-nothing])
+    ("Part 2" :visible (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory)
+     ["Record" aoch--do-nothing]
      ["Record and Submit" aoch--do-nothing])))
 
 (provide 'advent-of-code-helper)
