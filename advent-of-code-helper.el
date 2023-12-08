@@ -286,6 +286,31 @@ Day 12 of Year 2016)."
              (2 (aoch-solution-part-2 :year year :day day :level level)))))
       (eieio-customize-object solution))))
 
+(define-inline aoch--get-solution-filename (year day level)
+  "Return the string denoting the puzzle directory for a given YEAR
+and DAY."
+  (inline-quote (format "%s%d/day/%d/part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
+
+(cl-defmethod aoch-do-http-post ((solution aoch-solution) answer)
+  (aoch--load-and-store-cookie)
+  (with-slots (year day level) solution
+    (let* ((post-url (format "https://adventofcode.com/%s/day/%s/answer" year day))
+           (post-data (format "level=%s&answer=%s" level answer))
+           (url-request-method "POST")
+           (url-request-data post-data)
+           (url-request-extra-headers '(("Content-Type" . "application/x-www-form-urlencoded"))))
+      (eww-browse-url post-url))))
+
+(defun aoch--record-and-submit-part (level)
+  (seq-let (year day) (aoch--inside-puzzle-directory-p)
+    (let ((filename (aoch--get-solution-filename year day level)))
+      (aoch--record-part level year day)
+      (let* ((solution (eieio-persistent-read filename
+                                              (cl-ecase level
+                                                (1 aoch-solution-part-1)
+                                                (2 aoch-solution-part-2)))))
+        (aoch-do-http-post solution (oref solution value))))))
+
 (defun aoch-record-part-1 ()
   "Record Part 1 solution.
 
@@ -299,6 +324,14 @@ This should be selected from the Menu Bar."
 This should be selected from the Menu Bar."
   (interactive)
   (aoch--record-part 2))
+
+(defun aoch-record-and-submit-part-1 ()
+  (interactive)
+  (aoch--record-and-submit-part 1))
+
+(defun aoch-record-and-submit-part-2 ()
+  (interactive)
+  (aoch--record-and-submit-part 2))
 
 ;;; Minor mode and menu.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -338,10 +371,10 @@ name."
     ;; Submenus for Part submission.
     ("Part 1" :visible (aoch--inside-puzzle-directory-p)
      ["Record" aoch-record-part-1 :help "Record your Part 1 answer"]
-     ["Record and Submit" aoch--do-nothing :help "Record and submit your Part 1 answer"])
+     ["Record and Submit" aoch-record-and-submit-part-1 :help "Record and submit your Part 1 answer"])
     ("Part 2" :visible (aoch--inside-puzzle-directory-p)
      ["Record" aoch-record-part-2 :help "Record your Part 2 answer"]
-     ["Record and Submit" aoch--do-nothing :help "Record and submit your Part 2 answer"])))
+     ["Record and Submit" aoch-record-and-submit-part-2 :help "Record and submit your Part 2 answer"])))
 
 (provide 'advent-of-code-helper)
 
