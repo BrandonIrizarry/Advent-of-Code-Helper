@@ -275,19 +275,9 @@ directory.")))
           "Your Part 2 Solution.")))
 
 (cl-defmethod eieio-done-customizing ((solution aoch-solution))
-  (aoch-save solution))
-
-(defun aoch--record-part (level &optional year day)
-  ;; Fetch YEAR and DAY from `default-directory' if we're recording
-  ;; only, that is, not in the context of recording and submitting.
-  (seq-let (year day) (if (and year day)
-                          (list year day)
-                        (aoch--inside-puzzle-directory-p))
-    (let ((solution
-           (cl-ecase level
-             (1 (aoch-solution-part-1 :year year :day day :level level))
-             (2 (aoch-solution-part-2 :year year :day day :level level)))))
-      (eieio-customize-object solution))))
+  (aoch-save solution)
+  (when (oref solution submitp)
+    (aoch-do-http-post solution (oref solution value))))
 
 (define-inline aoch--get-solution-filename (year day level)
   "Return the string denoting the puzzle directory for a given YEAR
@@ -302,31 +292,20 @@ and DAY."
            (url-request-method "POST")
            (url-request-data post-data)
            (url-request-extra-headers '(("Content-Type" . "application/x-www-form-urlencoded"))))
-      (eww-browse-url post-url))))
+      ;; We'd like to switch to the EWW buffer _after_ the POST
+      ;; request succeeded, so we need to do it this way.
+      (url-retrieve post-url (lambda (status)
+                               (eww "" nil (current-buffer)))))))
 
 (defun aoch--record-and-submit-part (level)
+  "Determine what we're customizing, and forward it to the acutal
+customization code."
   (seq-let (year day) (aoch--inside-puzzle-directory-p)
-    (let ((filename (aoch--get-solution-filename year day level)))
-      (aoch--record-part level year day)
-      (let* ((solution (eieio-persistent-read filename
-                                              (cl-ecase level
-                                                (1 aoch-solution-part-1)
-                                                (2 aoch-solution-part-2)))))
-        (aoch-do-http-post solution (oref solution value))))))
-
-(defun aoch-record-part-1 ()
-  "Record Part 1 solution.
-
-This should be selected from the Menu Bar."
-  (interactive)
-  (aoch--record-part 1))
-
-(defun aoch-record-part-2 ()
-  "Record Part 2 solution.
-
-This should be selected from the Menu Bar."
-  (interactive)
-  (aoch--record-part 2))
+    (let ((solution
+           (cl-ecase level
+             (1 (aoch-solution-part-1 :year year :day day :level level))
+             (2 (aoch-solution-part-2 :year year :day day :level level)))))
+      (eieio-customize-object solution))))
 
 (defun aoch-record-and-submit-part-1 ()
   (interactive)
