@@ -274,14 +274,6 @@ Day 12 of Year 2016)."
 (cl-defmethod eieio-done-customizing ((solution aoch-solution))
   (aoch-save solution))
 
-(defun aoch-submit-part (level)
-  (interactive "nPart: ")
-  (string-match "\\([[:digit:]]+\\)/day/\\([[:digit:]][[:digit:]]?\\)" default-directory)
-  (let ((year (string-to-number (match-string-no-properties 1 default-directory)))
-        (day (string-to-number (match-string-no-properties 2 default-directory)))
-        (part-method (intern (format "advent-of-code-helper-solution-part-%d" level))))
-    (eieio-customize-object (funcall part-method :year year :day day :level level))))
-
 (defun aoch--record-part (level)
   (seq-let (year day) (aoch--inside-puzzle-directory-p)
     (let ((solution
