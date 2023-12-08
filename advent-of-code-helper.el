@@ -240,10 +240,6 @@ Day 12 of Year 2016)."
   ((level :initarg :level)
    (year :initarg :year)
    (day :initarg :day)
-   (post-url :initform ""
-             :documentation "The HTTP POST URL used to submit a solution.")
-   (post-data :initform ""
-              :documentation "The data used for the HTTP POST request.")))
 
 (cl-defmethod initialize-instance :after ((solution aoch-solution) &rest slots)
   (with-slots (year day level) solution
