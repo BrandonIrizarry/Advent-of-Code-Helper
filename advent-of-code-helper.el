@@ -252,7 +252,8 @@ The user is free to provide their own bindings for
   '("Advent-of-Code"
     ["Bootstrap Cookie" aoch-bootstrap :help "Fix a broken cookie"]
     ["Prepare Puzzle" aoch-prepare-puzzle :help "Create directory and download puzzle input"]
-    ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]))
+    ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]
+    ["Submit Part 1" aoch-submit-part :visible (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory)]))
 
 (provide 'advent-of-code-helper)
 
