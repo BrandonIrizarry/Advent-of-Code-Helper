@@ -296,7 +296,10 @@ The user is free to provide their own bindings for
   :global t
   :keymap aoch-map)
 
-;; TODO: write aoch--inside-puzzle-directory-p
+(defun aoch--inside-puzzle-directory-p ()
+  "Determine whether the user is visiting a puzzle directory, such
+that the appropriate menu entries will become visible."
+  (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory))
 
 (defun aoch--do-nothing ()
   "Stub for non-functional menu entries."
@@ -309,10 +312,11 @@ The user is free to provide their own bindings for
     ["Bootstrap Cookie" aoch-bootstrap :help "Fix a broken cookie"]
     ["Prepare Puzzle" aoch-prepare-puzzle :help "Create directory and download puzzle input"]
     ["Visit Puzzle" aoch-visit-puzzle :help "Navigate to an existing puzzle"]
-    ("Part 1" :visible (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory)
+    ;; Submenus for Part submission.
+    ("Part 1" :visible (aoch--inside-puzzle-directory-p)
      ["Record" aoch--do-nothing]
      ["Record and Submit" aoch--do-nothing])
-    ("Part 2" :visible (string-match-p "[[:digit:]]+/day/[[:digit:]][[:digit:]]?" default-directory)
+    ("Part 2" :visible (aoch--inside-puzzle-directory-p)
      ["Record" aoch--do-nothing]
      ["Record and Submit" aoch--do-nothing])))
 
