@@ -2,6 +2,9 @@
 #+AUTHOR: Brandon C. Irizarry
 
 * Introduction
+(Note: when viewing this README in Emacs, Org =help:= links will be
+activated for some of the Elisp functions and variables mentioned.)
+
 This is a small library intended to make interacting with the Advent
 of Code website more programmatic. This library is inspired by
 
