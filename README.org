@@ -85,7 +85,7 @@ To install:
 1. Put [[file:advent-of-code-helper.el][advent-of-code-helper.el]] somewhere in your Emacs [[help:load-path][load-path]] and
    [[help:require][require]] it.
 
-2. Activate the minor mode: =M-x= [[help:advent-of-code-helper-mode][advent-of-code-helper-mode]]. This
+2. Activate the minor mode: =M-x advent-of-code-helper-mode= [[help:advent-of-code-helper-mode][(which see)]]. This
    adds an =Advent-of-Code= top-level menu.
 
 * Usage
@@ -138,13 +138,13 @@ Currently, a few Customize options are included, mainly for
 I haven't gone about solving a great deal of Advent of Code puzzles
 with this app just yet. I'm sure ideas will come to me as I do this.
 
-- [ ] Let the user record whether an answer was too high, too low, or
-  otherwise incorrect.
+- /Let the user record whether an answer was too high, too low, or
+  otherwise incorrect./
 
   Maybe we'd want to search the EWW buffer for a phrase like "Your
   answer was too high.", and set this field automatically.
 
-- [ ] Integration with the user's solution code itself.
+- /Integration with the user's solution code itself./
 
   Following the idea of the first todo, an ERT test can query the
   recorded solution (currently something like =part1.eieio=) to test
