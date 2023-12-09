@@ -17,8 +17,9 @@ would be nice to automate downloading and submitting puzzle solutions
 previously, but I don't quite remember what the initial inspiration
 was.)
 
-I then began looking for tools in Emacs for this, and found the two
-projects mentioned above. I'm not sure why at this point, but I
+I then began looking for tools in Emacs for this, and found (among
+possibly others) the two projects mentioned above. I'm not sure why at
+this point, but despite the existence of these other projects, I
 decided to write my own. 🤷
 
 I decided to go with an EIEIO based implementation, in particular
@@ -26,9 +27,9 @@ because I liked the idea of its customization buffers, which create an
 eclectic bridge closing the gap between user interaction and some
 obfuscated piece of data that lives in memory.
 
-It also looks like there are some awesome attempts at writing
-full-blown Advent of Code GUIs (as, for example, web apps) which look
-like further sources of inspiration:
+It also looks like there are already some awesome attempts at writing
+full-blown Advent of Code GUIs (in the form of things like web apps)
+which look like sources of further inspiration:
 
 - [[https://blogs.sap.com/2023/11/27/preparing-for-advent-of-code-2023/][abap-advent-2023-template]]
 
