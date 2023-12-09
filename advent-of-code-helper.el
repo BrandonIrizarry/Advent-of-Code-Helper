@@ -247,10 +247,11 @@ Day 12 of Year 2016)."
    (submitp :initform t
             :custom boolean
             :label "Submit this answer?"
-            :documentation "Set to 'on' to submit your answer to Advent of Code.
+            :documentation "Whether you wish to submit your answer to Advent of Code.
 
-In either case, your answer will be recorded within this puzzle's
-directory.")))
+The default is 'on', which will both record your solution
+locally, and submit it to Advent of Code. Set to 'off' to simply
+record your solution.")))
 
 (cl-defmethod initialize-instance :after ((solution aoch-solution) &rest slots)
   (with-slots (year day level) solution
