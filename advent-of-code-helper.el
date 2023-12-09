@@ -258,7 +258,7 @@ record your solution."))
 (define-inline aoch--get-solution-filename (year day level)
   "Return the string denoting the puzzle directory for a given YEAR
 and DAY."
-  (inline-quote (format "%s%d/day/%d/part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
+  (inline-quote (format "%s%d/day/%d/.part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
 
 (cl-defmethod initialize-instance :after ((solution aoch-solution) &rest slots)
   (with-slots (year day level) solution
