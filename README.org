@@ -8,9 +8,4 @@ of Code website more programmatic. This library is inspired by
 1. [[https://gist.github.com/amno1/08f4d98b425b44bb342acbfbe183116a][amno1/aoc-helper.el]]
 2. [[https://github.com/keegancsmith/advent][keegancsmith/advent]]
 
-* Things to Add
-- Programmatic submission
-  
-  This especially might involve making a new EIEIO object modelling a
-  problem's part 1 and part 2 answers. The done-customization "hook"
-  would then use the applicable field in the submission.
+This entire project was an excuse to play around with EIEIO. 😀
