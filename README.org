@@ -126,6 +126,10 @@ submitting, your solution is still recorded locally.
 After submitting, the HTTP response buffer is rendered by [[https://www.gnu.org/software/emacs/manual/html_mono/eww.html][EWW]] and
 presented.
 
+** Customizing
+Currently, a few Customize options are included, mainly for
+[[help:advent-of-code-helper-top-level-directory][advent-of-code-helper-top-level-directory]].
+
 * Room for Improvement
 I haven't gone about solving a great deal of Advent of Code puzzles
 with this app just yet. I'm sure ideas will come to me as I do this.
