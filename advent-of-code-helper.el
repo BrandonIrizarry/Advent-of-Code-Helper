@@ -105,7 +105,8 @@ This file is stored directly under your top-level directory."
          :custom string
          :label "Cookie hash"
          :documentation
-         "Used to validate Advent of Code HTTP requests.")))
+         "Used to validate Advent of Code HTTP requests."))
+  :documentation "Advent of Code validation cookie.")
 
 (cl-defmethod initialize-instance :after ((cookie aoch-cookie) &rest _)
   "Initialize fields inherited from EIEIO-PERSISTENT to their proper
@@ -251,7 +252,9 @@ Day 12 of Year 2016)."
 
 The default is 'on', which will both record your solution
 locally, and submit it to Advent of Code. Set to 'off' to simply
-record your solution.")))
+record your solution."))
+  :documentation "Advent of Code solution metadata.")
+
 (define-inline aoch--get-solution-filename (year day level)
   "Return the string denoting the puzzle directory for a given YEAR
 and DAY."
@@ -272,7 +275,8 @@ and DAY."
           :custom string
           :label "Part 1"
           :documentation
-          "Your Part 1 Solution.")))
+          "Your Part 1 Solution."))
+  :documentation "Advent of Code Part 1 solution.")
 
 (defclass aoch-solution-part-2 (aoch-solution)
   ((value :initarg :value
@@ -280,7 +284,8 @@ and DAY."
           :custom string
           :label "Part 2"
           :documentation
-          "Your Part 2 Solution.")))
+          "Your Part 2 Solution."))
+  :documentation "Advent of Code Part 2 solution.")
 
 (cl-defmethod eieio-done-customizing ((solution aoch-solution))
   (aoch-save solution)
