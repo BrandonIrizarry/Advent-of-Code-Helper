@@ -285,7 +285,6 @@ and DAY."
   (inline-quote (format "%s%d/day/%d/part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
 
 (cl-defmethod aoch-do-http-post ((solution aoch-solution) answer)
-  (aoch--load-and-store-cookie)
   (with-slots (year day level) solution
     (let* ((post-url (format "https://adventofcode.com/%s/day/%s/answer" year day))
            (post-data (format "level=%s&answer=%s" level answer))
@@ -294,8 +293,10 @@ and DAY."
            (url-request-extra-headers '(("Content-Type" . "application/x-www-form-urlencoded"))))
       ;; We'd like to switch to the EWW buffer _after_ the POST
       ;; request succeeded, so we need to do it this way.
-      (url-retrieve post-url (lambda (status)
-                               (eww "" nil (current-buffer)))))))
+      (dotimes (_ 2)
+        (aoch--load-and-store-cookie)
+        (url-retrieve post-url (lambda (status)
+                                 (eww "" nil (current-buffer))))))))
 
 (defun aoch--record-and-submit-part (level)
   "Determine what we're customizing, and forward it to the acutal
