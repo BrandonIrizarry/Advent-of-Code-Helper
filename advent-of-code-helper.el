@@ -38,16 +38,20 @@
 ;;
 ;; Normally, you would download this input manually, specifying where
 ;; it should be downloaded onto disk. However, it's possible to
-;; programmatically pull it down to some ideal location, using the hash
-;; associated with your login cookie, which you find in your browser's
-;; Developer Tools panel somewhere.
+;; programmatically pull it down to local storage, as long as your
+;; login cookie hash, inspectable via your browser's development
+;; tools, is loaded into Emacs. See `url-cookie-list'.
+;;
+;; In addition, it's possible to programmatically make a POST request
+;; to Advent of Code, when you want to submit a solution.
 ;;
 ;; This library provides a few utilities for facilitating these
 ;; concerns: one for setting the cookie's hash, a process we call
 ;; "bootstrapping"; one for then downloading the puzzle input into a
 ;; particular directory, which is created automatically if missing;
-;; and one for visiting a particular puzzle directory, obviating the
-;; need to remember where you have your Advent of Code work stored.
+;; one for visiting a particular puzzle directory, obviating the need
+;; to remember where you have your Advent of Code work stored; and one
+;; for recording and possibly submitting a solution.
 ;;
 ;; We also define a minor mode, which uses a keymap that in turn lets
 ;; us define a simple menu enabling these tasks. It's of course
