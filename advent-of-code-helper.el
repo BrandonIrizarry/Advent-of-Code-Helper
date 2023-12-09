@@ -291,8 +291,8 @@ and DAY."
            (url-request-method "POST")
            (url-request-data post-data)
            (url-request-extra-headers '(("Content-Type" . "application/x-www-form-urlencoded"))))
-      ;; We'd like to switch to the EWW buffer _after_ the POST
-      ;; request succeeded, so we need to do it this way.
+      ;; View POST request result in EWW upon fulfillment of the
+      ;; request.
       (dotimes (_ 2)
         (aoch--load-and-store-cookie)
         (url-retrieve post-url (lambda (status)
