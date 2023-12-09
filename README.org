@@ -5,7 +5,141 @@
 This is a small library intended to make interacting with the Advent
 of Code website more programmatic. This library is inspired by
 
-1. [[https://gist.github.com/amno1/08f4d98b425b44bb342acbfbe183116a][amno1/aoc-helper.el]]
-2. [[https://github.com/keegancsmith/advent][keegancsmith/advent]]
+- [[https://gist.github.com/amno1/08f4d98b425b44bb342acbfbe183116a][amno1/aoc-helper.el]]
+- [[https://github.com/keegancsmith/advent][keegancsmith/advent]]
 
-This entire project was an excuse to play around with EIEIO. 😀
+In 2023, I decided to give Advent of Code a few rounds. I thought it
+would be nice to automate downloading and submitting puzzle solutions
+(I must've come across mentions or examples of this automation
+previously, but I don't quite remember what the initial inspiration
+was.)
+
+I then began looking for tools in Emacs for this, and found the two
+projects mentioned above. I'm not sure why at this point, but I
+decided to write my own. 🤷
+
+I decided to go with an EIEIO based implementation, in particular
+because I liked the idea of its customization buffers, which create an
+eclectic bridge closing the gap between user interaction and some
+obfuscated piece of data that lives in memory.
+
+It also looks like there are some awesome attempts at writing
+full-blown Advent of Code GUIs (as, for example, web apps) which look
+like further sources of inspiration:
+
+- [[https://blogs.sap.com/2023/11/27/preparing-for-advent-of-code-2023/][abap-advent-2023-template]]
+
+* Background
+
+From the [[https://adventofcode.com/2023/about][Advent of Code]] website:
+
+#+begin_quote
+Advent of Code is an Advent calendar of small programming puzzles for
+a variety of skill sets and skill levels that can be solved in any
+programming language you like. People use them as interview prep,
+company training, university coursework, practice problems, a speed
+contest, or to challenge each other.
+#+end_quote
+
+In order to play Advent of Code, you need to set up an account with
+it and log in. You then solve the available puzzles for a given
+year. In order to do so, you first need to download that puzzle's
+input, which is what you'll work with to solve the puzzle.
+
+Normally, you would download this input manually, specifying where
+it should be downloaded onto disk. However, it's possible to
+programmatically pull it down to local storage, as long as your
+login cookie hash, inspectable via your browser's development
+tools, is loaded into Emacs. See [[help:url-cookie-list][url-cookie-list]].
+
+This library provides a few utilities for facilitating these
+concerns:
+
+- Setting the cookie's hash.
+
+  We refer to this as "bootstrapping" the cookie.
+  
+- Downloading the puzzle input into a particular directory.
+
+  This directory is created automatically if missing.
+  
+- Visiting a particular puzzle directory.
+
+  This obviates the need to remember where you have your Advent of
+  Code work stored.
+  
+- Recording, and possibly submitting, a solution.
+
+  In case you've completed a certain Advent of Code puzzle already,
+  resubmitting it would be superfluous. But you may still want to
+  record an existing solution with this app.
+
+* Installation
+
+To install:
+
+1. Put [[file:advent-of-code-helper.el][advent-of-code-helper.el]] somewhere in your Emacs [[help:load-path][load-path]] and
+   [[help:require][require]] it.
+
+2. Activate the minor mode: =M-x= [[help:advent-of-code-helper-mode][advent-of-code-helper-mode]]. This
+   adds an =Advent-of-Code= top-level menu.
+
+* Usage
+** Bootstrapping
+When first using this package, you need to record your cookie's
+hash. You can run the [[help:advent-of-code-helper-bootstrap][advent-of-code-helper-bootstrap]] command
+directly, or select =Bootstrap Cookie= from the menu (which runs this
+command for you.)
+
+** Preparing a Puzzle
+This is perhaps best illustrated with an example. Say you want to work
+on Day 1 of Year 2016. Select =Prepare Puzzle= from the menu (which
+runs [[help:advent-of-code-helper-prepare-puzzle][advent-of-code-helper-prepare-puzzle]]). Follow the minibuffer
+prompts asking you for the year (2016) and day (1).
+
+If non-existent, the directory =2016/day/1= is created under your
+[[help:advent-of-code-helper-top-level-directory][advent-of-code-helper-top-level-directory]], for example,
+=~/adventofcode/2016/day/1=. Note that this scheme intentionally
+mimics the [[https://en.wikipedia.org/wiki/Clean_URL#Slug][slugs]] used by the Advent of Code website itself.
+
+After possibly creating the needed directory, the input for [[https://adventofcode.com/2016/day/1][2016 Day 1]]
+is downloaded there, as =input.txt=.
+
+** Visiting a Puzzle
+This is provided as a convenience for visiting a puzzle directory in
+Dired, given that one only cares to remember its year and day, and not
+the details of where it's stored.
+
+Select =Visit Puzzle= from the menu ([[help:advent-of-code-helper-visit-puzzle][advent-of-code-helper-visit-puzzle]]).
+
+** Submitting a Puzzle Answer to Advent of Code
+Within a puzzle directory, two new submenus appear under the main
+menu: =Part 1 Actions= and =Part 2 Actions=. For example, let's assume
+you've completed Year 2023 Day 1, and you want to submit it. While in
+that directory's Dired buffer (technically, any buffer visiting a file
+in that directory will do), select =Part 1 Actions=, and then
+=Record/Submit=. The EIEIO customization buffer provides a
+toggle-option for uploading your submission to Advent of Code (which
+is the default), or else only recording your solution locally. When
+submitting, your solution is still recorded locally.
+
+After submitting, the HTTP response buffer is rendered by [[https://www.gnu.org/software/emacs/manual/html_mono/eww.html][EWW]] and
+presented.
+
+* Room for Improvement
+I haven't gone about solving a great deal of Advent of Code puzzles
+with this app just yet. I'm sure ideas will come to me as I do this.
+
+- [ ] Let the user record whether an answer was too high, too low, or
+  otherwise incorrect.
+
+  Maybe we'd want to search the EWW buffer for a phrase like "Your
+  answer was too high.", and set this field automatically.
+
+- [ ] Integration with the user's solution code itself.
+
+  Following the idea of the first todo, an ERT test can query the
+  recorded solution (currently something like =part1.eieio=) to test
+  whether the current solution iteration still yields an answer that
+  is, for example, still too high (because it equals or exceeds the
+  current too-high answer.)
