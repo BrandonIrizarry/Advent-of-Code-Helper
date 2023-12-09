@@ -284,6 +284,9 @@ directory.")))
 and DAY."
   (inline-quote (format "%s%d/day/%d/part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
 
+;; We need COLD-START to function as a kind of "static variable" - it
+;; must keep track if the closing-over function hasn't been run yet
+;; this Emacs session.
 (let ((cold-start t))
   (cl-defmethod aoch-do-http-post ((solution aoch-solution) answer)
     (with-slots (year day level) solution
