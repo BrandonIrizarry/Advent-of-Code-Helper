@@ -284,24 +284,26 @@ directory.")))
 and DAY."
   (inline-quote (format "%s%d/day/%d/part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
 
-(cl-defmethod aoch-do-http-post ((solution aoch-solution) answer)
-  (with-slots (year day level) solution
-    (let* ((post-url (format "https://adventofcode.com/%s/day/%s/answer" year day))
-           (post-data (format "level=%s&answer=%s" level answer))
-           (url-request-method "POST")
-           (url-request-data post-data)
-           (url-request-extra-headers '(("Content-Type" . "application/x-www-form-urlencoded"))))
-      ;; View POST request result in EWW upon fulfillment of the
-      ;; request.
-      ;;
-      ;; There doesn't seem to be an error message associated with the
-      ;; first failed cold-start, so we unconditionally try this
-      ;; twice. For simplicity, we simply try twice with every
-      ;; subsequent POST request as well.
-      (dotimes (_ 2)
-        (aoch--load-and-store-cookie)
-        (url-retrieve post-url (lambda (status)
-                                 (eww "" nil (current-buffer))))))))
+(let ((cold-start t))
+  (cl-defmethod aoch-do-http-post ((solution aoch-solution) answer)
+    (with-slots (year day level) solution
+      (let* ((post-url (format "https://adventofcode.com/%s/day/%s/answer" year day))
+             (post-data (format "level=%s&answer=%s" level answer))
+             (url-request-method "POST")
+             (url-request-data post-data)
+             (url-request-extra-headers '(("Content-Type" . "application/x-www-form-urlencoded"))))
+        ;; View POST request result in EWW upon fulfillment of the
+        ;; request.
+        ;;
+        ;; There doesn't seem to be an error message associated with
+        ;; the first failed cold-start, so we unconditionally try this
+        ;; twice when cold-starting. After the first cold start, we
+        ;; need only make the request once, as would be normal.
+        (dotimes (_ (if cold-start 2 1))
+          (aoch--load-and-store-cookie)
+          (url-retrieve post-url (lambda (status)
+                                   (eww "" nil (current-buffer)))))
+        (setq cold-start nil)))))
 
 (defun aoch--record-and-submit-part (level)
   "Determine what we're customizing, and forward it to the acutal
