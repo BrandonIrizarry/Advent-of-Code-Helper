@@ -252,11 +252,14 @@ Day 12 of Year 2016)."
 The default is 'on', which will both record your solution
 locally, and submit it to Advent of Code. Set to 'off' to simply
 record your solution.")))
+(define-inline aoch--get-solution-filename (year day level)
+  "Return the string denoting the puzzle directory for a given YEAR
+and DAY."
+  (inline-quote (format "%s%d/day/%d/part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
 
 (cl-defmethod initialize-instance :after ((solution aoch-solution) &rest slots)
   (with-slots (year day level) solution
-    (oset solution file (concat (aoch--get-puzzle-directory year day)
-                                (format "/part%d.eieio" level)))
+    (oset solution file (aoch--get-solution-filename year day level))
     (oset solution file-header-line ";; -*- mode: lisp-data -*-")
     (oset solution do-backups nil)
     (oset solution object-name (format "Part %d Solution" level))))
@@ -283,11 +286,6 @@ record your solution.")))
   (aoch-save solution)
   (when (oref solution submitp)
     (aoch-do-http-post solution (oref solution value))))
-
-(define-inline aoch--get-solution-filename (year day level)
-  "Return the string denoting the puzzle directory for a given YEAR
-and DAY."
-  (inline-quote (format "%s%d/day/%d/part%d.eieio" aoch-top-level-directory ,year ,day ,level)))
 
 ;; We need COLD-START to function as a kind of "static variable" - it
 ;; must keep track if the closing-over function hasn't been run yet
