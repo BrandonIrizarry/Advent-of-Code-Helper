@@ -293,6 +293,11 @@ and DAY."
            (url-request-extra-headers '(("Content-Type" . "application/x-www-form-urlencoded"))))
       ;; View POST request result in EWW upon fulfillment of the
       ;; request.
+      ;;
+      ;; There doesn't seem to be an error message associated with the
+      ;; first failed cold-start, so we unconditionally try this
+      ;; twice. For simplicity, we simply try twice with every
+      ;; subsequent POST request as well.
       (dotimes (_ 2)
         (aoch--load-and-store-cookie)
         (url-retrieve post-url (lambda (status)
