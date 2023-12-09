@@ -59,20 +59,20 @@ tools, is loaded into Emacs. See [[help:url-cookie-list][url-cookie-list]].
 This library provides a few utilities for facilitating these
 concerns:
 
-- Setting the cookie's hash.
+- /Setting the cookie's hash./
 
   We refer to this as "bootstrapping" the cookie.
   
-- Downloading the puzzle input into a particular directory.
+- /Downloading the puzzle input into a particular directory./
 
   This directory is created automatically if missing.
   
-- Visiting a particular puzzle directory.
+- /Visiting a particular puzzle directory./
 
   This obviates the need to remember where you have your Advent of
   Code work stored.
   
-- Recording, and possibly submitting, a solution.
+- /Recording, and possibly submitting, a solution./
 
   In case you've completed a certain Advent of Code puzzle already,
   resubmitting it would be superfluous. But you may still want to
