@@ -316,23 +316,35 @@ and DAY."
                                    (eww "" nil (current-buffer)))))
         (setq cold-start nil)))))
 
-(defun aoch--record-and-submit-part (level)
+(defun aoch--record-and-submit-part (level r1 r2)
   "Determine what we're customizing, and forward it to the acutal
-customization code."
+customization code.
+
+R1 and R2 are the region endpoints. An active region is used for
+prefilling the :value field."
   (seq-let (year day) (aoch--inside-puzzle-directory-p)
     (let ((solution
            (cl-ecase level
              (1 (aoch-solution-part-1 :year year :day day :level level))
              (2 (aoch-solution-part-2 :year year :day day :level level)))))
+      (when (region-active-p)
+        (let ((selection (buffer-substring-no-properties r1 r2)))
+          (oset solution value selection)))
       (eieio-customize-object solution))))
 
-(defun aoch-record-and-submit-part-1 ()
-  (interactive)
-  (aoch--record-and-submit-part 1))
+(defun aoch-record-and-submit-part-1 (r1 r2)
+  "Record and possibly submit a Part 1 solution.
 
-(defun aoch-record-and-submit-part-2 ()
-  (interactive)
-  (aoch--record-and-submit-part 2))
+See `aoch--record-and-submit-part'."
+  (interactive "r")
+  (aoch--record-and-submit-part 1 r1 r2))
+
+(defun aoch-record-and-submit-part-2 (r1 r2)
+  "Record and possibly submit a Part 2 solution.
+
+See `aoch--record-and-submit-part'."
+  (interactive "r")
+  (aoch--record-and-submit-part 2 r1 r2))
 
 ;;; Minor mode and menu.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

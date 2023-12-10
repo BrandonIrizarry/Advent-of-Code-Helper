@@ -118,14 +118,23 @@ Select =Visit Puzzle= from the menu ([[help:advent-of-code-helper-visit-puzzle][
 
 ** Submitting a Puzzle Answer to Advent of Code
 Within a puzzle directory, two new submenus appear under the main
-menu: =Part 1 Actions= and =Part 2 Actions=. For example, let's assume
-you've completed Year 2023 Day 1, and you want to submit it. While in
-that directory's Dired buffer (technically, any buffer visiting a file
-in that directory will do), select =Part 1 Actions=, and then
-=Record/Submit=. The EIEIO customization buffer provides a
-toggle-option for uploading your submission to Advent of Code (which
-is the default), or else only recording your solution locally. When
-submitting, your solution is still recorded locally.
+menu: =Part 1 Actions= and =Part 2 Actions=.
+
+For example, let's assume you've completed Year 2023 Day 1, and you
+want to submit it. While in any buffer visiting a file in that
+directory (for example, your solution file, the Dired buffer visiting
+that directory, etc.) select =Part 1 Actions=, and then
+=Record/Submit=.
+
+When selecting =Record/Submit=, the solution field is pre-populated
+with any active-region text. This eliminates the need to, for example,
+copy and paste your solution: you simply highlight it, then do
+=Record/Submit=.
+
+The EIEIO customization buffer provides a toggle-option for uploading
+your submission to Advent of Code (which is the default), or else only
+recording your solution locally. When submitting, your solution is
+still recorded locally.
 
 After submitting, the HTTP response buffer is rendered by [[https://www.gnu.org/software/emacs/manual/html_mono/eww.html][EWW]] and
 presented.
