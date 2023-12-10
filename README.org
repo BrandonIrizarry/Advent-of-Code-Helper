@@ -131,6 +131,12 @@ with any active-region text. This eliminates the need to, for example,
 copy and paste your solution: you simply highlight it, then do
 =Record/Submit=.
 
+Along these lines, it's recommended to enable =context-menu-mode=, so
+that, assuming you've written down your solution in a buffer, you can
+double-click it to highlight it, then left-click anywhere in the
+buffer to get a context-menu where you can access the Advent of Code
+Helper main menu.
+
 The EIEIO customization buffer provides a toggle-option for uploading
 your submission to Advent of Code (which is the default), or else only
 recording your solution locally. When submitting, your solution is
